@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Plus, Trash2, Dices, Users, Sparkles } from 'lucide-react';
-// 【修正1】画像をインポートして変数として扱えるようにする
-import gameRuleImage from './image_c010c3.png';
+import { RefreshCw, Plus, Trash2, Dices, Users, Sparkles, X, Maximize2 } from 'lucide-react';
 
 const CardDealerApp = () => {
   const [commonSituation, setCommonSituation] = useState(null);
   const [playerEvents, setPlayerEvents] = useState([]);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [isImageExpanded, setIsImageExpanded] = useState(false); // 画像拡大用の状態
 
   // お題データ（拡張版: 3倍増量）
   const situations = [
@@ -71,13 +70,16 @@ const CardDealerApp = () => {
     }, 300);
   };
 
-  // プレイヤー個別のイベントカードを引く
+  // プレイヤー個別のイベントカードを引く (修正: 3枚引く)
   const addPlayerEvent = () => {
-    const randomEvent = events[Math.floor(Math.random() * events.length)];
+    // 配列をシャッフルして先頭3つを取得（重複なし）
+    const shuffled = [...events].sort(() => 0.5 - Math.random());
+    const selectedEvents = shuffled.slice(0, 3);
+
     const newEvent = {
       id: Date.now(),
-      text: randomEvent,
-      revealed: false // アニメーション用（今回は即表示）
+      options: selectedEvents, // 3つの選択肢
+      revealed: false 
     };
     setPlayerEvents([...playerEvents, newEvent]);
   };
@@ -116,15 +118,47 @@ const CardDealerApp = () => {
           <p className="text-slate-400 text-sm mt-1">お題カードディーラー</p>
         </header>
 
-        {/* Image Section (New) */}
-        <section className="rounded-2xl overflow-hidden shadow-lg border border-slate-700/50">
-          <img 
-            // 【修正2】文字列ではなく、インポートした変数を使用
-            src={gameRuleImage} 
-            alt="ゲーム説明: 共通カード×個人カード" 
-            className="w-full h-auto"
-          />
+        {/* Image Section (Updated with Modal) */}
+        <section className="rounded-2xl overflow-hidden shadow-lg border border-slate-700/50 group relative">
+          <button 
+            onClick={() => setIsImageExpanded(true)}
+            className="w-full relative cursor-zoom-in block"
+          >
+            <img 
+              src="image_c010c3.png" 
+              alt="ゲーム説明: 共通カード×個人カード" 
+              className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
+              onError={(e) => e.target.style.display = 'none'}
+            />
+            {/* Hover Overlay Hint */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <div className="bg-black/50 p-2 rounded-full text-white backdrop-blur-sm">
+                <Maximize2 size={24} />
+              </div>
+            </div>
+          </button>
         </section>
+
+        {/* Expanded Image Modal */}
+        {isImageExpanded && (
+          <div 
+            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 animate-fade-in cursor-zoom-out"
+            onClick={() => setIsImageExpanded(false)}
+          >
+            <button 
+              onClick={() => setIsImageExpanded(false)}
+              className="absolute top-6 right-6 p-2 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+            >
+              <X size={32} />
+            </button>
+            <img 
+              src="image_c010c3.png" 
+              alt="ゲーム説明拡大" 
+              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl animate-zoom-in"
+              onClick={(e) => e.stopPropagation()} // 画像クリックでは閉じない（背景クリックで閉じる）
+            />
+          </div>
+        )}
 
         {/* Section 1: Common Situation */}
         <section className="space-y-3">
@@ -161,33 +195,53 @@ const CardDealerApp = () => {
           </div>
         </section>
 
-        {/* Section 2: Player Events */}
+        {/* Section 2: Player Events (Updated for 3 options) */}
         {commonSituation && (
           <section className="space-y-4 animate-fade-in-up">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-pink-300 font-bold uppercase tracking-wider text-xs">
                 <Sparkles size={16} />
-                個別イベントカード
+                個別イベントカード (3択)
               </div>
               <span className="text-xs text-slate-500">{playerEvents.length} Players</span>
             </div>
 
             <div className="grid gap-3">
-              {playerEvents.map((event, index) => (
+              {playerEvents.map((playerEvent, index) => (
                 <div 
-                  key={event.id}
-                  className="flex items-center justify-between bg-slate-800 border-l-4 border-pink-500 rounded-r-xl p-4 shadow-md animate-slide-in-right"
+                  key={playerEvent.id}
+                  className="bg-slate-800 border-l-4 border-pink-500 rounded-r-xl p-4 shadow-md animate-slide-in-right"
                 >
-                  <div className="flex flex-col">
-                    <span className="text-xs text-pink-400 font-bold mb-1">PLAYER {index + 1}</span>
-                    <span className="text-xl font-bold text-white">{event.text}</span>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs text-pink-400 font-bold">PLAYER {index + 1}</span>
+                    <button 
+                      onClick={() => removeEvent(playerEvent.id)}
+                      className="text-slate-600 hover:text-red-400 transition"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
-                  <button 
-                    onClick={() => removeEvent(event.id)}
-                    className="p-2 text-slate-600 hover:text-red-400 transition"
-                  >
-                    <Trash2 size={18} />
-                  </button>
+                  
+                  {/* 3つの選択肢を表示 */}
+                  <div className="space-y-2">
+                    {playerEvent.options && playerEvent.options.map((option, optIndex) => (
+                      <div key={optIndex} className="bg-slate-700/50 p-2.5 rounded border border-slate-600/30 text-sm text-slate-200 flex items-center group hover:bg-slate-700 transition-colors">
+                        <span className="w-5 h-5 flex-shrink-0 flex items-center justify-center bg-slate-600 group-hover:bg-slate-500 rounded-full text-[10px] mr-2 text-slate-300">
+                          {optIndex + 1}
+                        </span>
+                        <span className="font-bold">{option}</span>
+                      </div>
+                    ))}
+                    {/* 旧データ(textのみ)との互換性のため（リロードなしで反映された場合用） */}
+                    {!playerEvent.options && playerEvent.text && (
+                       <div className="bg-slate-700/50 p-2.5 rounded border border-slate-600/30 text-sm text-slate-200 font-bold">
+                         {playerEvent.text}
+                       </div>
+                    )}
+                  </div>
+                  <div className="text-[10px] text-slate-500 mt-2 text-right">
+                    この中から好きな1つを使って創作！
+                  </div>
                 </div>
               ))}
             </div>
@@ -197,7 +251,7 @@ const CardDealerApp = () => {
               className="w-full py-4 rounded-xl border-2 border-slate-700 bg-slate-800/50 hover:bg-slate-800 hover:border-pink-500/50 text-slate-300 hover:text-white flex items-center justify-center gap-2 font-bold transition-all active:scale-95"
             >
               <Plus size={20} />
-              プレイヤーを追加 (カードを引く)
+              プレイヤーを追加 (3枚引く)
             </button>
           </section>
         )}
@@ -241,6 +295,22 @@ const CardDealerApp = () => {
         .rotate-y-0 { transform: rotateY(0deg); }
         .perspective { perspective: 1000px; }
         
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.2s ease-out forwards;
+        }
+
+        @keyframes zoom-in {
+          from { transform: scale(0.95); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        .animate-zoom-in {
+          animation: zoom-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
         @keyframes fade-in-up {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
