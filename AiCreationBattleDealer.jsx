@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Plus, Trash2, Dices, Users, Sparkles, X, Maximize2, ImageOff } from 'lucide-react';
+import { RefreshCw, Plus, Trash2, Dices, Users, Sparkles, X, Maximize2, ImageOff, RotateCcw } from 'lucide-react';
 
 const CardDealerApp = () => {
   const [commonSituation, setCommonSituation] = useState(null);
@@ -71,23 +71,36 @@ const CardDealerApp = () => {
     }, 300);
   };
 
-  // プレイヤー個別のイベントカードを引く (修正: 3枚引く)
+  // プレイヤー個別のイベントカードを引く
   const addPlayerEvent = () => {
-    // 配列をシャッフルして先頭3つを取得（重複なし）
-    const shuffled = [...events].sort(() => 0.5 - Math.random());
-    const selectedEvents = shuffled.slice(0, 3);
-
+    const randomEvent = events[Math.floor(Math.random() * events.length)];
     const newEvent = {
       id: Date.now(),
-      options: selectedEvents, // 3つの選択肢
-      revealed: false 
+      text: randomEvent,
+      revealed: false,
+      rerollCount: 3 // 初期リロール回数
     };
     setPlayerEvents([...playerEvents, newEvent]);
   };
 
-  // イベントカードを削除（引き直したい時など）
+  // イベントカードを削除（プレイヤー削除）
   const removeEvent = (id) => {
     setPlayerEvents(playerEvents.filter(e => e.id !== id));
+  };
+
+  // イベントカードを引き直す
+  const rerollEvent = (id) => {
+    setPlayerEvents(playerEvents.map(event => {
+      if (event.id === id && event.rerollCount > 0) {
+        const randomEvent = events[Math.floor(Math.random() * events.length)];
+        return {
+          ...event,
+          text: randomEvent,
+          rerollCount: event.rerollCount - 1
+        };
+      }
+      return event;
+    }));
   };
 
   // リセット確認表示
@@ -128,7 +141,7 @@ const CardDealerApp = () => {
             {!imageError ? (
               <>
                 <img 
-                  src="image_c010c3.png" // パスを微調整
+                  src="image_c010c3.png" // 文字列指定に戻しました
                   alt="ゲーム説明: 共通カード×個人カード" 
                   className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
                   onError={() => setImageError(true)} // エラー時にstateを更新
@@ -167,7 +180,7 @@ const CardDealerApp = () => {
             {/* モーダル内でも画像の表示を試みる */}
             {!imageError ? (
               <img 
-                src="./image_c010c3.png" 
+                src="image_c010c3.png" // 文字列指定に戻しました
                 alt="ゲーム説明拡大" 
                 className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl animate-zoom-in"
                 onClick={(e) => e.stopPropagation()}
@@ -223,52 +236,54 @@ const CardDealerApp = () => {
           </div>
         </section>
 
-        {/* Section 2: Player Events (Updated for 3 options) */}
+        {/* Section 2: Player Events (Reverted to single card with Reroll) */}
         {commonSituation && (
           <section className="space-y-4 animate-fade-in-up">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-pink-300 font-bold uppercase tracking-wider text-xs">
                 <Sparkles size={16} />
-                個別イベントカード (3択)
+                個別イベントカード
               </div>
               <span className="text-xs text-slate-500">{playerEvents.length} Players</span>
             </div>
 
             <div className="grid gap-3">
-              {playerEvents.map((playerEvent, index) => (
+              {playerEvents.map((event, index) => (
                 <div 
-                  key={playerEvent.id}
-                  className="bg-slate-800 border-l-4 border-pink-500 rounded-r-xl p-4 shadow-md animate-slide-in-right"
+                  key={event.id}
+                  className="flex flex-col bg-slate-800 border-l-4 border-pink-500 rounded-r-xl p-4 shadow-md animate-slide-in-right gap-3"
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs text-pink-400 font-bold">PLAYER {index + 1}</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                      <span className="text-xs text-pink-400 font-bold mb-1">PLAYER {index + 1}</span>
+                      {/* 3択のoptionsがある場合(旧データ)と、単一のtextがある場合の両方に対応 */}
+                      <span className="text-xl font-bold text-white">
+                        {event.text || (event.options && event.options[0]) || "カードエラー"}
+                      </span>
+                    </div>
                     <button 
-                      onClick={() => removeEvent(playerEvent.id)}
-                      className="text-slate-600 hover:text-red-400 transition"
+                      onClick={() => removeEvent(event.id)}
+                      className="p-2 text-slate-600 hover:text-red-400 transition"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={18} />
                     </button>
                   </div>
-                  
-                  {/* 3つの選択肢を表示 */}
-                  <div className="space-y-2">
-                    {playerEvent.options && playerEvent.options.map((option, optIndex) => (
-                      <div key={optIndex} className="bg-slate-700/50 p-2.5 rounded border border-slate-600/30 text-sm text-slate-200 flex items-center group hover:bg-slate-700 transition-colors">
-                        <span className="w-5 h-5 flex-shrink-0 flex items-center justify-center bg-slate-600 group-hover:bg-slate-500 rounded-full text-[10px] mr-2 text-slate-300">
-                          {optIndex + 1}
-                        </span>
-                        <span className="font-bold">{option}</span>
-                      </div>
-                    ))}
-                    {/* 旧データ(textのみ)との互換性のため（リロードなしで反映された場合用） */}
-                    {!playerEvent.options && playerEvent.text && (
-                       <div className="bg-slate-700/50 p-2.5 rounded border border-slate-600/30 text-sm text-slate-200 font-bold">
-                         {playerEvent.text}
-                       </div>
-                    )}
-                  </div>
-                  <div className="text-[10px] text-slate-500 mt-2 text-right">
-                    この中から好きな1つを使って創作！
+
+                  {/* 引き直しボタンエリア */}
+                  <div className="flex justify-end pt-2 border-t border-slate-700/50">
+                    <button 
+                      onClick={() => rerollEvent(event.id)}
+                      disabled={event.rerollCount <= 0}
+                      className={`
+                        flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all
+                        ${event.rerollCount > 0 
+                          ? 'bg-slate-700 text-indigo-300 hover:bg-indigo-900/30 hover:text-indigo-200' 
+                          : 'bg-slate-800 text-slate-600 cursor-not-allowed'}
+                      `}
+                    >
+                      <RotateCcw size={14} />
+                      {event.rerollCount > 0 ? `別のカード引く (残り${event.rerollCount}回)` : '変更不可'}
+                    </button>
                   </div>
                 </div>
               ))}
@@ -279,7 +294,7 @@ const CardDealerApp = () => {
               className="w-full py-4 rounded-xl border-2 border-slate-700 bg-slate-800/50 hover:bg-slate-800 hover:border-pink-500/50 text-slate-300 hover:text-white flex items-center justify-center gap-2 font-bold transition-all active:scale-95"
             >
               <Plus size={20} />
-              プレイヤーを追加 (3枚引く)
+              プレイヤーを追加 (カードを引く)
             </button>
           </section>
         )}
