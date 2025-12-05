@@ -114,6 +114,15 @@ const CardDealerApp = () => {
           <p className="text-slate-400 text-sm mt-1">お題カードディーラー</p>
         </header>
 
+        {/* Image Section (New) */}
+        <section className="rounded-2xl overflow-hidden shadow-lg border border-slate-700/50">
+          <img 
+            src="image_c010c3.png" 
+            alt="ゲーム説明: 共通カード×個人カード" 
+            className="w-full h-auto"
+          />
+        </section>
+
         {/* Section 1: Common Situation */}
         <section className="space-y-3">
           <div className="flex items-center gap-2 text-indigo-300 font-bold uppercase tracking-wider text-xs">
