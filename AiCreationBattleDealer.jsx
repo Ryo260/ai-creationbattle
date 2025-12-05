@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Plus, Trash2, Dices, Users, Sparkles, X, Maximize2 } from 'lucide-react';
+import { RefreshCw, Plus, Trash2, Dices, Users, Sparkles, X, Maximize2, ImageOff } from 'lucide-react';
 
 const CardDealerApp = () => {
   const [commonSituation, setCommonSituation] = useState(null);
@@ -7,6 +7,7 @@ const CardDealerApp = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isImageExpanded, setIsImageExpanded] = useState(false); // 画像拡大用の状態
+  const [imageError, setImageError] = useState(false); // 画像読み込みエラー用の状態
 
   // お題データ（拡張版: 3倍増量）
   const situations = [
@@ -118,24 +119,35 @@ const CardDealerApp = () => {
           <p className="text-slate-400 text-sm mt-1">お題カードディーラー</p>
         </header>
 
-        {/* Image Section (Updated with Modal) */}
-        <section className="rounded-2xl overflow-hidden shadow-lg border border-slate-700/50 group relative">
+        {/* Image Section (Updated with Modal & Error Handling) */}
+        <section className="rounded-2xl overflow-hidden shadow-lg border border-slate-700/50 group relative bg-slate-800">
           <button 
             onClick={() => setIsImageExpanded(true)}
-            className="w-full relative cursor-zoom-in block"
+            className="w-full relative cursor-zoom-in block min-h-[200px] flex items-center justify-center"
           >
-            <img 
-              src="image_c010c3.png" 
-              alt="ゲーム説明: 共通カード×個人カード" 
-              className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
-              onError={(e) => e.target.style.display = 'none'}
-            />
-            {/* Hover Overlay Hint */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-              <div className="bg-black/50 p-2 rounded-full text-white backdrop-blur-sm">
-                <Maximize2 size={24} />
+            {!imageError ? (
+              <>
+                <img 
+                  src="./image_c010c3.png" // パスを微調整
+                  alt="ゲーム説明: 共通カード×個人カード" 
+                  className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
+                  onError={() => setImageError(true)} // エラー時にstateを更新
+                />
+                {/* Hover Overlay Hint */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  <div className="bg-black/50 p-2 rounded-full text-white backdrop-blur-sm">
+                    <Maximize2 size={24} />
+                  </div>
+                </div>
+              </>
+            ) : (
+              // 画像読み込みエラー時の表示
+              <div className="text-center p-8 text-slate-500 flex flex-col items-center">
+                <ImageOff size={48} className="mb-3 opacity-50" />
+                <span className="font-bold text-slate-400">画像を読み込めませんでした</span>
+                <span className="text-xs mt-2 opacity-75 text-slate-500">タップして拡大表示（再読み込み）を試す</span>
               </div>
-            </div>
+            )}
           </button>
         </section>
 
@@ -151,12 +163,28 @@ const CardDealerApp = () => {
             >
               <X size={32} />
             </button>
-            <img 
-              src="image_c010c3.png" 
-              alt="ゲーム説明拡大" 
-              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl animate-zoom-in"
-              onClick={(e) => e.stopPropagation()} // 画像クリックでは閉じない（背景クリックで閉じる）
-            />
+            
+            {/* モーダル内でも画像の表示を試みる */}
+            {!imageError ? (
+              <img 
+                src="./image_c010c3.png" 
+                alt="ゲーム説明拡大" 
+                className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl animate-zoom-in"
+                onClick={(e) => e.stopPropagation()}
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div 
+                className="text-white text-center p-6 border border-slate-700 rounded-xl bg-slate-900" 
+                onClick={(e) => e.stopPropagation()}
+              >
+                <p className="text-xl font-bold text-red-400 mb-2">画像を表示できません</p>
+                <p className="text-slate-400 text-sm">
+                  画像のパスが解決できないか、ファイルが見つかりません。<br/>
+                  プレビュー環境の制限の可能性があります。
+                </p>
+              </div>
+            )}
           </div>
         )}
 
