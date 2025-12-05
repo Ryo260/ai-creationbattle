@@ -128,7 +128,7 @@ const CardDealerApp = () => {
             {!imageError ? (
               <>
                 <img 
-                  src="./image_c010c3.png" // パスを微調整
+                  src="image_c010c3.png" // パスを微調整
                   alt="ゲーム説明: 共通カード×個人カード" 
                   className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
                   onError={() => setImageError(true)} // エラー時にstateを更新
