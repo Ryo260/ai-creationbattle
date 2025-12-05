@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { RefreshCw, Plus, Trash2, Dices, Users, Sparkles } from 'lucide-react';
+// 【修正1】画像をインポートして変数として扱えるようにする
+import gameRuleImage from './image_c010c3.png';
 
 const CardDealerApp = () => {
   const [commonSituation, setCommonSituation] = useState(null);
@@ -117,7 +119,8 @@ const CardDealerApp = () => {
         {/* Image Section (New) */}
         <section className="rounded-2xl overflow-hidden shadow-lg border border-slate-700/50">
           <img 
-            src="image_c010c3.png" 
+            // 【修正2】文字列ではなく、インポートした変数を使用
+            src={gameRuleImage} 
             alt="ゲーム説明: 共通カード×個人カード" 
             className="w-full h-auto"
           />
