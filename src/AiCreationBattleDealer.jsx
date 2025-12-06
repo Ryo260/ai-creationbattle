@@ -9,28 +9,23 @@ const CardDealerApp = () => {
   const [isImageExpanded, setIsImageExpanded] = useState(false); // 画像拡大用の状態
   const [imageError, setImageError] = useState(false); // 画像読み込みエラー用の状態
 
-  // お題データ（拡張版: 3倍増量）
+  // お題データ（日常・普遍的テーマ 40選）
   const situations = [
-    // 学校・日常系
-    "学校の放課後", "文化祭の前日", "満員電車", "深夜のコンビニ", "就職活動",
-    "雨のバス停", "満開の桜並木", "終電後の駅ホーム", "廃校の音楽室", "ビルの屋上",
-    "古本屋の奥", "静まり返った水族館", "閉園後の遊園地", "空港の出発ロビー",
-    "コインランドリー", "花火大会の河川敷", "クリスマスの街角", "結婚式場",
-    "昭和レトロな商店街", "工事現場", "裁判所", "病院の待合室",
+    // 🏫 学校・青春 (10)
+    "放課後の教室", "文化祭の前日", "夕暮れの屋上", "部室", "真夜中の学校", 
+    "卒業式", "体育館の裏", "静かな図書室", "保健室のベッド", "修学旅行の夜",
 
-    // 旅行・自然系
-    "夏の海辺", "田舎の夏休み", "雪山のロッジ", "無人島", "豪華客船",
-    "秘湯の温泉旅館", "嵐のキャンプ場", "灼熱のサバンナ", "極寒の南極基地",
-    "砂漠のオアシス", "深い森の中", "断崖絶壁",
+    // 🏙️ 街・移動 (10)
+    "深夜のコンビニ", "雨のバス停", "満員電車", "終電後の駅ホーム", "寂れた公園", 
+    "深夜のコインランドリー", "エレベーターの中", "夕焼けの歩道橋", "路地裏のバー", "深夜のファミレス",
 
-    // ファンタジー・SF系
-    "未来のサイバーパンク都市", "中世ファンタジーの酒場", "ゾンビパニックの世界",
-    "宇宙ステーション", "古びた洋館", "夢の中", "タイムマシンの実験室",
-    "荒波の海賊船", "からくり忍者屋敷", "深海都市", "天空の城",
-    "地下ダンジョン", "王宮の舞踏会", "月面基地", "ロボット工場",
-    "荒廃した東京", "AIが支配する世界", "竜の巣", "妖精の森", "お化け屋敷",
-    "西部劇の酒場", "脱出不可能な監獄", "怪しいサーカス小屋", "映画の撮影スタジオ",
-    "魔法学校の教室", "探偵事務所"
+    // ✈️ 旅・イベント (10)
+    "夏の海辺", "キャンプ場の焚き火", "空港の出発ロビー", "雪山のロッジ", "結婚式場", 
+    "病院の待合室", "ホテルの最上階", "夜のフェリー甲板", "お祭りの神社", "満開の桜並木",
+
+    // 🏠 生活・ドラマチック (10)
+    "引っ越し作業中の部屋", "クリスマスのリビング", "雨宿りの軒下", "熱狂するライブハウス", "静寂の美術館", 
+    "警察の取調室", "裁判所の法廷", "廃墟", "工事現場", "嵐の孤島"
   ];
 
   const events = [
@@ -47,7 +42,7 @@ const CardDealerApp = () => {
     "爆発に巻き込まれる", "借金を背負う", "閉じ込められる", "決闘を申し込まれる",
     "車で爆走する", "空から落ちる", "賞金首になる", "ボタンを押してしまう",
 
-    // ファンタジー・非日常系
+    // ファンタジー・非日常系（少し残しつつ、日常でも解釈可能なものに）
     "奇跡が起きる", "タイムリープする", "謎の物体を拾う", "空を飛ぶ", "魔法を使う",
     "猫になる", "宝くじが当たる", "動物と会話する", "透明人間になる",
     "神様が現れる", "伝説の剣を見つける", "幽霊を目撃する", "宇宙人に誘拐される",
@@ -132,7 +127,7 @@ const CardDealerApp = () => {
           <p className="text-slate-400 text-sm mt-1">お題カードディーラー</p>
         </header>
 
-        {/* Image Section (Updated with Modal & Error Handling) */}
+        {/* Image Section (publicフォルダ参照版) */}
         <section className="rounded-2xl overflow-hidden shadow-lg border border-slate-700/50 group relative bg-slate-800">
           <button 
             onClick={() => setIsImageExpanded(true)}
@@ -141,12 +136,11 @@ const CardDealerApp = () => {
             {!imageError ? (
               <>
                 <img 
-                  src="image_c010c3.png" // 文字列指定に戻しました
+                  src="/image_c010c3.png" 
                   alt="ゲーム説明: 共通カード×個人カード" 
                   className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
-                  onError={() => setImageError(true)} // エラー時にstateを更新
+                  onError={() => setImageError(true)} 
                 />
-                {/* Hover Overlay Hint */}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                   <div className="bg-black/50 p-2 rounded-full text-white backdrop-blur-sm">
                     <Maximize2 size={24} />
@@ -154,11 +148,14 @@ const CardDealerApp = () => {
                 </div>
               </>
             ) : (
-              // 画像読み込みエラー時の表示
-              <div className="text-center p-8 text-slate-500 flex flex-col items-center">
+              <div className="text-center p-8 text-slate-500 flex flex-col items-center border-2 border-dashed border-slate-700 rounded-xl w-full m-2">
                 <ImageOff size={48} className="mb-3 opacity-50" />
-                <span className="font-bold text-slate-400">画像を読み込めませんでした</span>
-                <span className="text-xs mt-2 opacity-75 text-slate-500">タップして拡大表示（再読み込み）を試す</span>
+                <span className="font-bold text-slate-400">画像が見つかりません</span>
+                <span className="text-xs mt-2 opacity-75 text-slate-400 max-w-xs leading-relaxed">
+                  画像ファイル(image_c010c3.png)を<br/>
+                  <code className="bg-slate-700 px-1 py-0.5 rounded text-indigo-300 mx-1">public</code>
+                  フォルダに置いてください
+                </span>
               </div>
             )}
           </button>
@@ -177,10 +174,9 @@ const CardDealerApp = () => {
               <X size={32} />
             </button>
             
-            {/* モーダル内でも画像の表示を試みる */}
             {!imageError ? (
               <img 
-                src="image_c010c3.png" // 文字列指定に戻しました
+                src="/image_c010c3.png" 
                 alt="ゲーム説明拡大" 
                 className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl animate-zoom-in"
                 onClick={(e) => e.stopPropagation()}
@@ -192,9 +188,8 @@ const CardDealerApp = () => {
                 onClick={(e) => e.stopPropagation()}
               >
                 <p className="text-xl font-bold text-red-400 mb-2">画像を表示できません</p>
-                <p className="text-slate-400 text-sm">
-                  画像のパスが解決できないか、ファイルが見つかりません。<br/>
-                  プレビュー環境の制限の可能性があります。
+                <p className="text-slate-400 text-sm mb-4">
+                  画像のパスが解決できないか、ファイルが見つかりません。
                 </p>
               </div>
             )}
@@ -236,7 +231,7 @@ const CardDealerApp = () => {
           </div>
         </section>
 
-        {/* Section 2: Player Events (Reverted to single card with Reroll) */}
+        {/* Section 2: Player Events */}
         {commonSituation && (
           <section className="space-y-4 animate-fade-in-up">
             <div className="flex items-center justify-between">
@@ -256,9 +251,8 @@ const CardDealerApp = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex flex-col">
                       <span className="text-xs text-pink-400 font-bold mb-1">PLAYER {index + 1}</span>
-                      {/* 3択のoptionsがある場合(旧データ)と、単一のtextがある場合の両方に対応 */}
                       <span className="text-xl font-bold text-white">
-                        {event.text || (event.options && event.options[0]) || "カードエラー"}
+                        {event.text || "カードエラー"}
                       </span>
                     </div>
                     <button 
@@ -269,7 +263,7 @@ const CardDealerApp = () => {
                     </button>
                   </div>
 
-                  {/* 引き直しボタンエリア */}
+                  {/* 引き直しボタン */}
                   <div className="flex justify-end pt-2 border-t border-slate-700/50">
                     <button 
                       onClick={() => rerollEvent(event.id)}
@@ -332,44 +326,6 @@ const CardDealerApp = () => {
         </footer>
 
       </div>
-      
-      <style>{`
-        .rotate-y-90 { transform: rotateY(90deg); }
-        .rotate-y-0 { transform: rotateY(0deg); }
-        .perspective { perspective: 1000px; }
-        
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.2s ease-out forwards;
-        }
-
-        @keyframes zoom-in {
-          from { transform: scale(0.95); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
-        }
-        .animate-zoom-in {
-          animation: zoom-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in-up {
-          animation: fade-in-up 0.5s ease-out forwards;
-        }
-
-        @keyframes slide-in-right {
-          from { opacity: 0; transform: translateX(-10px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        .animate-slide-in-right {
-          animation: slide-in-right 0.3s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
 };
