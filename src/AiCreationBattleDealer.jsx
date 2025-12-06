@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { RefreshCw, Plus, Trash2, Dices, Users, Sparkles, X, Maximize2, ImageOff, RotateCcw } from 'lucide-react';
+import React, { useState } from 'react';
+import { RefreshCw, Plus, Trash2, Dices, Users, Sparkles, X, Maximize2, ImageOff, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const CardDealerApp = () => {
   const [commonSituation, setCommonSituation] = useState(null);
@@ -8,6 +8,13 @@ const CardDealerApp = () => {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isImageExpanded, setIsImageExpanded] = useState(false); // 画像拡大用の状態
   const [imageError, setImageError] = useState(false); // 画像読み込みエラー用の状態
+  const [currentImageIndex, setCurrentImageIndex] = useState(0); // 現在表示している画像のインデックス
+
+  // 説明用画像のパス配列
+  const imagePaths = [
+    '/image_c010c3.png', // 1枚目の画像
+    '/image_bfa7ab.png'  // 2枚目の画像（追加）
+  ];
 
   // お題データ（日常・普遍的テーマ 40選）
   const situations = [
@@ -115,6 +122,20 @@ const CardDealerApp = () => {
     setShowResetConfirm(false);
   };
 
+  // 次の画像へ
+  const nextImage = (e) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % imagePaths.length);
+    setImageError(false);
+  };
+
+  // 前の画像へ
+  const prevImage = (e) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + imagePaths.length) % imagePaths.length);
+    setImageError(false);
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans p-4 pb-20 selection:bg-indigo-500 selection:text-white">
       <div className="max-w-md mx-auto space-y-8">
@@ -127,21 +148,21 @@ const CardDealerApp = () => {
           <p className="text-slate-400 text-sm mt-1">お題カードディーラー</p>
         </header>
 
-        {/* Image Section (publicフォルダ参照版) */}
+        {/* Image Section (publicフォルダ参照版 - 複数画像対応) */}
         <section className="rounded-2xl overflow-hidden shadow-lg border border-slate-700/50 group relative bg-slate-800">
-          <button 
+          <div 
             onClick={() => setIsImageExpanded(true)}
             className="w-full relative cursor-zoom-in block min-h-[200px] flex items-center justify-center"
           >
             {!imageError ? (
               <>
                 <img 
-                  src="/image_c010c3.png" 
-                  alt="ゲーム説明: 共通カード×個人カード" 
+                  src={imagePaths[currentImageIndex]} 
+                  alt={`ゲーム説明 ${currentImageIndex + 1}: 共通カード×個人カード`} 
                   className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
                   onError={() => setImageError(true)} 
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
                   <div className="bg-black/50 p-2 rounded-full text-white backdrop-blur-sm">
                     <Maximize2 size={24} />
                   </div>
@@ -152,13 +173,40 @@ const CardDealerApp = () => {
                 <ImageOff size={48} className="mb-3 opacity-50" />
                 <span className="font-bold text-slate-400">画像が見つかりません</span>
                 <span className="text-xs mt-2 opacity-75 text-slate-400 max-w-xs leading-relaxed">
-                  画像ファイル(image_c010c3.png)を<br/>
+                  画像ファイル({imagePaths[currentImageIndex].replace('/', '')})を<br/>
                   <code className="bg-slate-700 px-1 py-0.5 rounded text-indigo-300 mx-1">public</code>
                   フォルダに置いてください
                 </span>
               </div>
             )}
-          </button>
+            
+            {/* 画像切り替えボタン（複数枚ある場合のみ表示） */}
+            {imagePaths.length > 1 && (
+              <>
+                <button 
+                  onClick={prevImage}
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-1 rounded-full backdrop-blur-sm transition-colors z-10"
+                >
+                  <ChevronLeft size={24} />
+                </button>
+                <button 
+                  onClick={nextImage}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-1 rounded-full backdrop-blur-sm transition-colors z-10"
+                >
+                  <ChevronRight size={24} />
+                </button>
+                {/* インジケーター */}
+                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1 z-10">
+                  {imagePaths.map((_, index) => (
+                    <div 
+                      key={index} 
+                      className={`w-2 h-2 rounded-full ${index === currentImageIndex ? 'bg-white' : 'bg-white/30'}`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </section>
 
         {/* Expanded Image Modal */}
@@ -169,15 +217,15 @@ const CardDealerApp = () => {
           >
             <button 
               onClick={() => setIsImageExpanded(false)}
-              className="absolute top-6 right-6 p-2 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+              className="absolute top-6 right-6 p-2 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors z-10"
             >
               <X size={32} />
             </button>
             
             {!imageError ? (
               <img 
-                src="/image_c010c3.png" 
-                alt="ゲーム説明拡大" 
+                src={imagePaths[currentImageIndex]} 
+                alt={`ゲーム説明拡大 ${currentImageIndex + 1}`} 
                 className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl animate-zoom-in"
                 onClick={(e) => e.stopPropagation()}
                 onError={() => setImageError(true)}
